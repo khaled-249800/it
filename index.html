@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التسجيل في فريق كرة القدم – كلية تقانة المعلومات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --g-950:#04160c;
+    --g-900:#0a2b17;
+    --g-800:#0f3d20;
+    --g-700:#14562c;
+    --g-600:#187338;
+    --g-500:#1f9645;
+    --g-400:#37b95d;
+    --line:#2c6a41;
+    --white:#ffffff;
+    --off:#f2f7f4;
+    --black:#0a0b0a;
+    --ink:#0d1410;
+    --danger:#c0392b;
+    --shadow: 0 20px 45px -20px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:var(--off);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Almarai',sans-serif;}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--g-500);color:#fff;}
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 6vw;
+    background:var(--black);
+    border-bottom:3px solid var(--g-500);
+  }
+  .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:1.1rem;}
+  .brand .ball{font-size:1.4rem;filter:drop-shadow(0 0 6px rgba(31,150,69,.7));}
+  .admin-btn{
+    background:transparent;border:2px solid var(--g-500);color:#fff;
+    padding:9px 20px;border-radius:30px;font-weight:700;font-size:.9rem;
+    transition:.25s;
+  }
+  .admin-btn:hover{background:var(--g-500);transform:translateY(-2px);box-shadow:0 8px 20px -6px rgba(31,150,69,.6);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 90px),
+      linear-gradient(180deg,var(--g-950) 0%, var(--g-900) 55%, var(--g-800) 100%);
+    color:#fff;
+    padding:70px 6vw 100px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .pitch-circle{
+    position:absolute;left:50%;top:110%;width:900px;height:900px;
+    border:2px solid rgba(255,255,255,.08);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+  }
+  .pitch-circle::after{
+    content:"";position:absolute;inset:120px;border:2px solid rgba(255,255,255,.06);border-radius:50%;
+  }
+  .hero-inner{position:relative;z-index:2;max-width:760px;margin:0 auto;
+    animation:fadeUp .9s ease both;}
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+    padding:6px 18px;border-radius:30px;font-size:.85rem;font-weight:700;
+    color:var(--g-400);letter-spacing:.5px;margin-bottom:22px;
+  }
+  .hero h1{font-size:clamp(2rem,5.2vw,3.4rem);margin:0 0 18px;line-height:1.25;font-weight:800;}
+  .hero h1 span{color:var(--g-400);}
+  .hero p{font-size:1.05rem;color:#dfeee5;line-height:1.9;max-width:600px;margin:0 auto;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- FORM SECTION ---------- */
+  .wrap{max-width:920px;margin:-58px auto 70px;padding:0 6vw;position:relative;z-index:5;}
+  .card{
+    background:#fff;border-radius:22px;box-shadow:var(--shadow);
+    padding:38px clamp(20px,4vw,50px);
+    border:1px solid #e4ece6;
+  }
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 24px;margin-top:6px;}
+  .field{position:relative;display:flex;flex-direction:column;gap:8px;}
+  .field.full{grid-column:1/-1;}
+  .field label{
+    display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem;color:var(--g-800);
+  }
+  .badge-num{
+    width:26px;height:26px;border-radius:50%;background:var(--g-600);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex:none;
+  }
+  input[type=text],input[type=tel],textarea{
+    border:2px solid #dfe8e2;border-radius:12px;padding:13px 16px;font-size:1rem;
+    font-family:inherit;background:#fbfdfc;transition:.2s;color:var(--ink);
+  }
+  input:focus,textarea:focus{outline:none;border-color:var(--g-500);background:#fff;box-shadow:0 0 0 4px rgba(31,150,69,.13);}
+  textarea{resize:vertical;min-height:90px;}
+  .error-msg{color:var(--danger);font-size:.8rem;font-weight:700;min-height:1em;}
+
+  /* Position picker – mini formation */
+  .formation{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px;
+  }
+  .pos-card{
+    border:2px solid #e1eae5;border-radius:14px;padding:16px 8px;text-align:center;
+    background:#fbfdfc;transition:.2s;
+  }
+  .pos-card .ico{font-size:1.5rem;display:block;margin-bottom:6px;}
+  .pos-card span{font-size:.85rem;font-weight:700;color:#3a4a41;}
+  .pos-card:hover{transform:translateY(-4px);border-color:var(--g-400);box-shadow:0 10px 20px -10px rgba(31,150,69,.5);}
+  .pos-card.active{background:linear-gradient(160deg,var(--g-600),var(--g-800));border-color:var(--g-700);}
+  .pos-card.active span, .pos-card.active .ico{color:#fff;}
+
+  .submit-btn{
+    margin-top:30px;width:100%;padding:18px;border:none;border-radius:14px;
+    background:linear-gradient(120deg,var(--g-500),var(--g-700));color:#fff;
+    font-size:1.15rem;font-weight:800;letter-spacing:.5px;
+    box-shadow:0 14px 30px -12px rgba(20,86,44,.7);
+    transition:.25s;
+  }
+  .submit-btn:hover{transform:translateY(-3px);box-shadow:0 18px 36px -12px rgba(20,86,44,.85);}
+  .submit-btn:active{transform:translateY(0);}
+
+  footer{
+    background:var(--black);color:#cfe3d6;text-align:center;padding:26px 20px;font-size:.85rem;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  footer .credit{color:var(--g-400);font-weight:700;letter-spacing:.5px;}
+
+  /* ---------- MODALS ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(4,22,12,.65);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:16px;
+  }
+  .overlay.show{display:flex;animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{
+    background:#fff;border-radius:18px;padding:34px;max-width:400px;width:100%;
+    text-align:center;box-shadow:var(--shadow);animation:pop .3s ease;
+  }
+  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal h3{margin:0 0 10px;font-size:1.3rem;color:var(--g-800);}
+  .modal p{color:#556;line-height:1.7;font-size:.95rem;}
+  .modal .icon-big{font-size:3rem;margin-bottom:6px;}
+  .modal input{width:100%;margin:16px 0 6px;text-align:center;letter-spacing:2px;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .btn{padding:12px 18px;border:none;border-radius:10px;font-weight:700;flex:1;transition:.2s;}
+  .btn-primary{background:var(--g-600);color:#fff;}
+  .btn-primary:hover{background:var(--g-700);}
+  .btn-ghost{background:#eef3f0;color:#334;}
+  .btn-ghost:hover{background:#e1e9e4;}
+  .wrong-pass{color:var(--danger);font-weight:700;font-size:.85rem;min-height:1.2em;margin-top:4px;}
+
+  /* ---------- DASHBOARD ---------- */
+  #dashboard{display:none;min-height:100vh;background:var(--off);}
+  .dash-nav{
+    background:var(--black);color:#fff;padding:16px 4vw;display:flex;justify-content:space-between;align-items:center;
+    border-bottom:3px solid var(--g-500);flex-wrap:wrap;gap:10px;
+  }
+  .dash-nav .brand{font-weight:800;}
+  .exit-btn{background:transparent;border:2px solid #c0392b;color:#ff8a80;padding:8px 18px;border-radius:30px;font-weight:700;transition:.2s;}
+  .exit-btn:hover{background:#c0392b;color:#fff;}
+  .dash-wrap{max-width:1200px;margin:0 auto;padding:28px 4vw 60px;}
+  .stat-row{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:24px;}
+  .stat-card{
+    background:#fff;border-radius:16px;padding:22px 28px;box-shadow:0 10px 24px -16px rgba(0,0,0,.25);
+    flex:1;min-width:180px;border-right:5px solid var(--g-500);
+  }
+  .stat-card .num{font-family:'Almarai',sans-serif;font-size:2.2rem;font-weight:800;color:var(--g-800);}
+  .stat-card .lbl{color:#6b7c73;font-size:.9rem;font-weight:700;}
+
+  .toolbar{
+    background:#fff;border-radius:16px;padding:18px;box-shadow:0 10px 24px -16px rgba(0,0,0,.2);
+    display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;align-items:center;
+  }
+  .toolbar input, .toolbar select{
+    border:2px solid #e1eae5;border-radius:10px;padding:10px 14px;font-family:inherit;font-size:.9rem;background:#fbfdfc;
+  }
+  .toolbar input:focus, .toolbar select:focus{outline:none;border-color:var(--g-500);}
+  .toolbar .search{flex:1;min-width:180px;}
+  .tool-btn{
+    background:var(--g-600);color:#fff;border:none;padding:10px 16px;border-radius:10px;font-weight:700;font-size:.85rem;
+    display:flex;align-items:center;gap:6px;transition:.2s;
+  }
+  .tool-btn:hover{background:var(--g-700);transform:translateY(-2px);}
+  .tool-btn.secondary{background:#31414a;}
+  .tool-btn.secondary:hover{background:#212d33;}
+
+  .table-card{background:#fff;border-radius:16px;box-shadow:0 10px 24px -16px rgba(0,0,0,.2);overflow:hidden;}
+  table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  thead{background:var(--g-800);color:#fff;}
+  th,td{padding:13px 14px;text-align:right;}
+  tbody tr{border-bottom:1px solid #eef2ef;transition:.15s;}
+  tbody tr:hover{background:#f3faf5;}
+  .pos-pill{
+    display:inline-block;padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700;color:#fff;
+  }
+  .row-actions{display:flex;gap:6px;}
+  .icon-btn{
+    background:#eef3f0;border:none;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:.9rem;transition:.2s;
+  }
+  .icon-btn:hover{background:var(--g-500);color:#fff;}
+  .icon-btn.del:hover{background:var(--danger);color:#fff;}
+  .phone-copy{display:flex;align-items:center;gap:8px;justify-content:flex-end;}
+  .empty-state{padding:60px 20px;text-align:center;color:#8a9a92;}
+  .empty-state .icon-big{font-size:2.6rem;margin-bottom:10px;}
+
+  /* mobile cards for table */
+  @media (max-width:800px){
+    .form-grid{grid-template-columns:1fr;}
+    .formation{grid-template-columns:repeat(2,1fr);}
+    table, thead, tbody, th, td, tr{display:block;}
+    thead{display:none;}
+    tbody tr{
+      background:#fff;margin:12px;border-radius:14px;box-shadow:0 6px 16px -10px rgba(0,0,0,.2);
+      border:1px solid #eef2ef;padding:6px 4px;
+    }
+    td{border:none;display:flex;justify-content:space-between;align-items:center;padding:9px 14px;gap:10px;}
+    td::before{content:attr(data-label);font-weight:800;color:var(--g-800);font-size:.78rem;}
+    .row-actions{justify-content:flex-end;}
+  }
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{position:absolute;top:0;right:0;left:0;padding:20px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= PUBLIC PAGE ================= -->
+<div id="publicPage">
+  <nav class="nav">
+    <div class="brand"><span class="ball">⚽</span> فريق كرة القدم – تقانة المعلومات</div>
+    <button class="admin-btn" onclick="openAdminModal()">لوحة المشرف</button>
+  </nav>
+
+  <header class="hero">
+    <div class="pitch-circle"></div>
+    <div class="hero-inner">
+      <span class="kicker">موسم التسجيل 2026</span>
+      <h1>التسجيل في <span>فريق كرة القدم</span><br>كلية تقانة المعلومات</h1>
+      <p>املأ البيانات التالية للتسجيل. سيتم التواصل مع المقبولين لاحقًا.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <form id="regForm" novalidate>
+        <div class="form-grid">
+          <div class="field full">
+            <label><span class="badge-num">1</span> الاسم الرباعي</label>
+            <input type="text" id="fullName" placeholder="">
+            <div class="error-msg" id="err-name"></div>
+          </div>
+
+          <div class="field full">
+            <label><span class="badge-num">2</span> رقم الهاتف</label>
+            <input type="tel" id="phone" placeholder="09xxxxxxxx">
+            <div class="error-msg" id="err-phone"></div>
+          </div>
+
+          <div class="field full">
+            <label><span class="badge-num">3</span> مركز اللعب</label>
+            <div class="formation" id="formation">
+              <div class="pos-card" data-pos="حارس مرمى"><span class="ico">🧤</span><span>حارس مرمى</span></div>
+              <div class="pos-card" data-pos="دفاع"><span class="ico">🛡️</span><span>دفاع</span></div>
+              <div class="pos-card" data-pos="وسط"><span class="ico">🎯</span><span>وسط</span></div>
+              <div class="pos-card" data-pos="هجوم"><span class="ico">⚡</span><span>هجوم</span></div>
+            </div>
+            <div class="error-msg" id="err-pos"></div>
+          </div>
+
+          <div class="field full">
+            <label><span class="badge-num">4</span> ملاحظات إضافية <span style="font-weight:400;color:#9aa;">(اختياري)</span></label>
+            <textarea id="notes" placeholder="أي معلومة إضافية تود إخبارنا بها..."></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">تسجيل ⚽</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div>© رابطة طلاب تقانة المعلومات – دفعة 24</div>
+    <div class="credit">تصميم وتطوير ヅᏦᎻᎪᏞᎬᎠ乂</div>
+  </footer>
+</div>
+
+<!-- Success Modal -->
+<div class="overlay" id="successOverlay">
+  <div class="modal">
+    <div class="icon-big">✅</div>
+    <h3>تم استلام طلب التسجيل بنجاح</h3>
+    <p>وسيتم التواصل معك قريبًا.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeSuccess()">حسنًا</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Password Modal -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal">
+    <div class="icon-big">🔐</div>
+    <h3>لوحة المشرف</h3>
+    <p>الرجاء إدخال كلمة المرور للمتابعة</p>
+    <input type="password" id="adminPass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')checkAdminPass()">
+    <div class="wrong-pass" id="wrongPassMsg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAdminModal()">إلغاء</button>
+      <button class="btn btn-primary" onclick="checkAdminPass()">دخول</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal" style="max-width:440px;text-align:right;">
+    <h3 style="text-align:center;">تعديل بيانات اللاعب</h3>
+    <div class="field" style="margin-top:14px;">
+      <label>الاسم الرباعي</label>
+      <input type="text" id="editName">
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>رقم الهاتف</label>
+      <input type="tel" id="editPhone">
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>مركز اللعب</label>
+      <select id="editPos" style="border:2px solid #dfe8e2;border-radius:12px;padding:12px;font-family:inherit;">
+        <option value="حارس مرمى">حارس مرمى</option>
+        <option value="دفاع">دفاع</option>
+        <option value="وسط">وسط</option>
+        <option value="هجوم">هجوم</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeEditModal()">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveEdit()">حفظ التعديلات</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div id="dashboard">
+  <div class="dash-nav">
+    <div class="brand">⚽ لوحة تحكم المشرف</div>
+    <button class="exit-btn" onclick="exitDashboard()">تسجيل الخروج</button>
+  </div>
+
+  <div class="dash-wrap">
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="num" id="totalCount">0</div>
+        <div class="lbl">إجمالي عدد المسجلين</div>
+      </div>
+      <div class="stat-card" style="border-color:#187338;">
+        <div class="num" id="gkCount">0</div>
+        <div class="lbl">حراس مرمى</div>
+      </div>
+      <div class="stat-card" style="border-color:#0f3d20;">
+        <div class="num" id="fwCount">0</div>
+        <div class="lbl">لاعبو هجوم</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" class="search" id="searchInput" placeholder="🔍 البحث بالاسم..." oninput="renderTable()">
+      <select id="filterPos" onchange="renderTable()">
+        <option value="">كل المراكز</option>
+        <option value="حارس مرمى">حارس مرمى</option>
+        <option value="دفاع">دفاع</option>
+        <option value="وسط">وسط</option>
+        <option value="هجوم">هجوم</option>
+      </select>
+      <select id="sortOrder" onchange="renderTable()">
+        <option value="desc">الأحدث أولًا</option>
+        <option value="asc">الأقدم أولًا</option>
+      </select>
+      <button class="tool-btn" onclick="renderTable()">🔄 تحديث</button>
+      <button class="tool-btn" onclick="exportExcel()">📊 تصدير Excel</button>
+      <button class="tool-btn secondary" onclick="printPDF()">🖨️ طباعة PDF</button>
+    </div>
+
+    <div class="table-card">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>رقم الهاتف</th>
+            <th>مركز اللعب</th>
+            <th>تاريخ ووقت التسجيل</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="icon-big">📭</div>
+        لا توجد أي تسجيلات حتى الآن
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden print area -->
+<div id="printArea" style="display:none;">
+  <h2 style="font-family:'Almarai',sans-serif;text-align:center;">قائمة المسجلين – فريق كرة القدم – كلية تقانة المعلومات</h2>
+  <table style="width:100%;border-collapse:collapse;font-family:'Tajawal',sans-serif;" border="1" cellpadding="8">
+    <thead><tr style="background:#0f3d20;color:#fff;"><th>الاسم</th><th>رقم الهاتف</th><th>مركز اللعب</th><th>التاريخ والوقت</th></tr></thead>
+    <tbody id="printBody"></tbody>
+  </table>
+</div>
+
+<script>
+const STORAGE_KEY = 'ittFootballRegistrations';
+const ADMIN_PASSWORD = 'khaled6092';
+let selectedPos = null;
+let editingId = null;
+
+/* ---------- Position picker ---------- */
+document.querySelectorAll('.pos-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.pos-card').forEach(c=>c.classList.remove('active'));
+    card.classList.add('active');
+    selectedPos = card.dataset.pos;
+    document.getElementById('err-pos').textContent='';
+  });
+});
+
+/* ---------- Data helpers ---------- */
+function getData(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ return []; }
+}
+function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+/* ---------- Registration form ---------- */
+document.getElementById('regForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  let valid = true;
+  const name = document.getElementById('fullName').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+
+  document.getElementById('err-name').textContent='';
+  document.getElementById('err-phone').textContent='';
+  document.getElementById('err-pos').textContent='';
+
+  const nameParts = name.split(/\s+/).filter(Boolean);
+  if(nameParts.length < 4){
+    document.getElementById('err-name').textContent = 'الرجاء إدخال الاسم الرباعي كاملًا (٤ أسماء على الأقل)';
+    valid = false;
+  }
+
+  const phoneRegex = /^0[0-9]{8,9}$/;
+  if(!phoneRegex.test(phone)){
+    document.getElementById('err-phone').textContent = 'الرجاء إدخال رقم هاتف صحيح (يبدأ بـ 0)';
+    valid = false;
+  }
+
+  if(!selectedPos){
+    document.getElementById('err-pos').textContent = 'الرجاء اختيار مركز اللعب';
+    valid = false;
+  }
+
+  if(!valid) return;
+
+  const data = getData();
+  data.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    name, phone, position: selectedPos, notes,
+    date: new Date().toISOString()
+  });
+  saveData(data);
+
+  document.getElementById('regForm').reset();
+  document.querySelectorAll('.pos-card').forEach(c=>c.classList.remove('active'));
+  selectedPos = null;
+
+  document.getElementById('successOverlay').classList.add('show');
+});
+function closeSuccess(){ document.getElementById('successOverlay').classList.remove('show'); }
+
+/* ---------- Admin login ---------- */
+function openAdminModal(){
+  document.getElementById('adminPass').value='';
+  document.getElementById('wrongPassMsg').textContent='';
+  document.getElementById('adminOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('adminPass').focus(),100);
+}
+function closeAdminModal(){ document.getElementById('adminOverlay').classList.remove('show'); }
+function checkAdminPass(){
+  const val = document.getElementById('adminPass').value;
+  if(val === ADMIN_PASSWORD){
+    closeAdminModal();
+    document.getElementById('publicPage').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    renderTable();
+  } else {
+    document.getElementById('wrongPassMsg').textContent = 'كلمة المرور غير صحيحة.';
+  }
+}
+function exitDashboard(){
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('publicPage').style.display='block';
+}
+
+/* ---------- Dashboard rendering ---------- */
+const posColors = {'حارس مرمى':'#187338','دفاع':'#0f3d20','وسط':'#1f9645','هجوم':'#0a2b17'};
+
+function formatDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('ar-EG') + ' - ' + d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+}
+
+function renderTable(){
+  let data = getData();
+  const search = document.getElementById('searchInput').value.trim();
+  const filterPos = document.getElementById('filterPos').value;
+  const sortOrder = document.getElementById('sortOrder').value;
+
+  if(search) data = data.filter(r => r.name.includes(search));
+  if(filterPos) data = data.filter(r => r.position === filterPos);
+  data.sort((a,b)=> sortOrder==='asc' ? new Date(a.date)-new Date(b.date) : new Date(b.date)-new Date(a.date));
+
+  const allData = getData();
+  document.getElementById('totalCount').textContent = allData.length;
+  document.getElementById('gkCount').textContent = allData.filter(r=>r.position==='حارس مرمى').length;
+  document.getElementById('fwCount').textContent = allData.filter(r=>r.position==='هجوم').length;
+
+  const tbody = document.getElementById('tableBody');
+  const printBody = document.getElementById('printBody');
+  tbody.innerHTML=''; printBody.innerHTML='';
+
+  document.getElementById('emptyState').style.display = data.length? 'none':'block';
+
+  data.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td data-label="الاسم">${escapeHtml(r.name)}</td>
+      <td data-label="رقم الهاتف">
+        <div class="phone-copy">
+          <button class="icon-btn" title="نسخ الرقم" onclick="copyPhone('${r.phone}', this)">📋</button>
+          <span>${escapeHtml(r.phone)}</span>
+        </div>
+      </td>
+      <td data-label="مركز اللعب"><span class="pos-pill" style="background:${posColors[r.position]||'#333'}">${escapeHtml(r.position)}</span></td>
+      <td data-label="تاريخ التسجيل">${formatDate(r.date)}</td>
+      <td data-label="إجراءات">
+        <div class="row-actions">
+          <button class="icon-btn" title="تعديل" onclick="openEditModal('${r.id}')">✏️</button>
+          <button class="icon-btn del" title="حذف" onclick="deleteEntry('${r.id}')">🗑️</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+
+    const ptr = document.createElement('tr');
+    ptr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.phone)}</td><td>${escapeHtml(r.position)}</td><td>${formatDate(r.date)}</td>`;
+    printBody.appendChild(ptr);
+  });
+}
+function escapeHtml(str){
+  const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+}
+
+/* ---------- Row actions ---------- */
+function deleteEntry(id){
+  if(!confirm('هل أنت متأكد من حذف هذا التسجيل؟')) return;
+  const data = getData().filter(r=>r.id!==id);
+  saveData(data);
+  renderTable();
+}
+function copyPhone(phone, btn){
+  navigator.clipboard.writeText(phone).then(()=>{
+    const orig = btn.textContent;
+    btn.textContent='✅';
+    setTimeout(()=>btn.textContent=orig, 1200);
+  }).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = phone; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+}
+
+/* ---------- Edit modal ---------- */
+function openEditModal(id){
+  const rec = getData().find(r=>r.id===id);
+  if(!rec) return;
+  editingId = id;
+  document.getElementById('editName').value = rec.name;
+  document.getElementById('editPhone').value = rec.phone;
+  document.getElementById('editPos').value = rec.position;
+  document.getElementById('editOverlay').classList.add('show');
+}
+function closeEditModal(){ document.getElementById('editOverlay').classList.remove('show'); editingId=null; }
+function saveEdit(){
+  const name = document.getElementById('editName').value.trim();
+  const phone = document.getElementById('editPhone').value.trim();
+  const position = document.getElementById('editPos').value;
+  if(name.split(/\s+/).filter(Boolean).length < 4){ alert('الرجاء إدخال الاسم الرباعي كاملًا'); return; }
+  if(!/^0[0-9]{8,9}$/.test(phone)){ alert('رقم الهاتف غير صحيح'); return; }
+
+  const data = getData();
+  const idx = data.findIndex(r=>r.id===editingId);
+  if(idx>-1){
+    data[idx].name = name; data[idx].phone = phone; data[idx].position = position;
+    saveData(data);
+  }
+  closeEditModal();
+  renderTable();
+}
+
+/* ---------- Export & Print ---------- */
+function exportExcel(){
+  const data = getData();
+  if(!data.length){ alert('لا توجد بيانات لتصديرها'); return; }
+  if(typeof XLSX === 'undefined'){ alert('تعذر تحميل مكتبة التصدير. تأكد من الاتصال بالإنترنت.'); return; }
+  const rows = data.map(r=>({
+    'الاسم': r.name, 'رقم الهاتف': r.phone, 'مركز اللعب': r.position,
+    'ملاحظات': r.notes || '', 'تاريخ التسجيل': formatDate(r.date)
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'المسجلون');
+  XLSX.writeFile(wb, 'تسجيلات_فريق_كرة_القدم.xlsx');
+}
+function printPDF(){
+  const data = getData();
+  if(!data.length){ alert('لا توجد بيانات للطباعة'); return; }
+  document.getElementById('printArea').style.display='block';
+  window.print();
+  document.getElementById('printArea').style.display='none';
+}
+</script>
+</body>
+</html>
